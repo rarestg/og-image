@@ -1,0 +1,5 @@
+name = "og-image-generator-cloudlfare-worker"
+main = "src/index.ts"
+compatibility_date = "2024-11-21"
+compatibility_flags = [ "nodejs_compat_v2" ]
+assets = { directory = "public" }
