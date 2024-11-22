@@ -98,13 +98,3 @@ MIT
 ---
 
 For more examples and detailed documentation, visit the [GitHub repository](https://github.com/mohdlatif/og-image-generator-cloudflare-worker).
-
-```
-
-```
-
-bun run deploy
-
-```
-
-```
