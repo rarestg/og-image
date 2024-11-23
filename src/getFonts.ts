@@ -219,21 +219,24 @@ export const getLocalFonts = async (
 ): Promise<Array<{ data: ArrayBuffer; name: string; style: Style; weight: Weight }>> => {
 	try {
 		const fontPromises = fonts.map(async ({ path, weight, style = 'normal' }) => {
-			// Use a consistent font family name for all weights
-			const name = 'font-family'; // any name will do as long as it's consistent
+			const name = 'font-family';
 
-			const url = new URL(c.req.url);
-			const fontUrl = `${url.origin}/fonts/${path}`;
+			// Use c.req.url as the base URL
+			const fontUrl = new URL(`/fonts/${path}`, c.req.url).toString();
+			const response = await c.env.ASSETS.fetch(fontUrl);
 
-			const res = await fetch(fontUrl);
-			if (!res.ok) {
-				throw new Error(`HTTP error! status: ${res.status}`);
+			if (!response.ok) {
+				throw new Error(
+					`Failed to load font: ${path} - Status: ${response.status} ${response.statusText}. URL: ${fontUrl}
+					}`
+				);
 			}
-			const data = await res.arrayBuffer();
+
+			const data = await response.arrayBuffer();
 
 			return {
 				data,
-				name, // All variants will have the same font-family name
+				name,
 				style,
 				weight,
 			};
@@ -247,7 +250,6 @@ export const getLocalFonts = async (
 
 /**
  * Single font loader utility - wraps getLocalFonts for simpler use cases
- * @deprecated Consider using getLocalFonts for better font management
  *
  * @param c - Hono context for getting domain URL
  * @param fontPath - Path to the font file
@@ -262,7 +264,6 @@ export const getLocalFonts = async (
  *
  * @example
  * const font = await getLocalFont(c, 'Inter-Regular.ttf', 400, 'normal');
- * // Returns: { data: ArrayBuffer, name: 'font-family', style: 'normal', weight: 400 }
  */
 export const getLocalFont = async (c: Context, fontPath: string, weight: Weight = 400, style: Style = 'normal') => {
 	const fonts = await getLocalFonts(c, [{ path: fontPath, weight, style }]);

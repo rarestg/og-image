@@ -13,23 +13,33 @@ languages:
   - React
 spotlight:
   author: Mohammed Abdulatef Al-Musaibeli
-  author_bio_link: https://www.linkedin.com/in/johnsicili/
-  author_bio_source: Website
+  author_bio_link: https://www.linkedin.com/in/almusaibly/
+  author_bio_source: linkedin
 ---
 
 # Generate Dynamic OG Images using Cloudflare Workers
 
-Eye-catching OG (Open Graph) images make your social media links stand out, driving more clicks and engagement. In this tutorial, you’ll learn how to build a dynamic OG image generator using Cloudflare Workers. With serverless edge computing, your images will load instantly, no matter where your audience is.
+Social media thrives on compelling visuals. With Cloudflare Workers, you can effortlessly generate dynamic Open Graph (OG) images that grab attention and boost platform performance. In this tutorial, you’ll learn how to create a customizable OG image generator powered by serverless edge computing. Cloudflare Workers enable you to deliver blazing-fast visuals globally, ensuring a seamless experience for your users. Let’s dive in to see how you can take your OG images to the next level with Cloudflare Workers.
 
-Here’s what you’ll achieve:
+What you’ll accomplish:
 
-    Generate stunning OG images dynamically with React and Tailwind CSS.
-    Leverage caching for high performance.
-    Customize designs with flexible font and style options.
+    - Dynamically create stunning OG images using React and Tailwind CSS.
+    - Optimize performance with built-in caching.
+    - Customize visuals with flexible fonts and design options..
 
 By the end, you’ll have a robust solution to enhance your social media presence.
 
 GitHub repository: [og-image-generator-cloudflare-worker](https://github.com/mohdlatif/og-image-generator-cloudflare-worker)
+
+## Why Use Cloudflare Workers?
+
+Building OG image generators can be challenging, especially when it comes to ensuring global performance, scalability, and speed. This is where Cloudflare Workers excel:
+
+    - Global Reach: Deliver your images with ultra-low latency, no matter where your users are located.
+    - Serverless Simplicity: Focus on building features, not managing infrastructure.
+    - Unparalleled Performance: Process and serve requests at the edge for blazing-fast load times.
+
+By leveraging Cloudflare Workers, you get a serverless edge-computing environment that’s not only cost-efficient but also perfectly optimized for modern web applications.
 
 ## Workflow Overview
 
@@ -269,8 +279,12 @@ Key TypeScript configuration features:
 Before starting, ensure your `wrangler.toml` includes these essential configurations:
 
 ```toml
+compatibility_date = "2024-11-06"
 compatibility_flags = [ "nodejs_compat_v2" ]
-assets = { directory = "public" }
+assets = { directory = "public",  binding = "ASSETS" }
+minify = true
+[build]
+watch_dir = "public"
 ```
 
 The `nodejs_compat_v2` flag enables runtime compatibility features required by the OG image generation library, even when using Bun. While we're using Bun as our development runtime, this flag ensures all necessary APIs are available in the Workers environment. The `assets` configuration maps your Worker's public directory, allowing direct access to static files like fonts, images, and favicons through URL paths (e.g., `/fonts/Inter.ttf`, `/images/logo.png`).
@@ -371,7 +385,66 @@ The font loading system supports multiple strategies including Google Fonts, Git
 
 :::
 
-## 5. Implement the OG image generator
+## 5. Configure image loading
+
+The generator supports loading images from your Worker's assets. Create an `images` directory inside your `public` folder to store any image files:
+
+```bash
+mkdir -p public/images
+```
+
+Create a new file for handling image loading:
+
+```typescript
+
+---
+
+filename: src/loadImage.ts
+
+---
+
+import { Context } from 'hono';
+
+export async function loadImage(c: Context, imagePath: string): Promise<string | null> {
+  try {
+    if (!c.env?.ASSETS) {
+      throw new Error('ASSETS binding is not configured');
+    }
+
+    const imageUrl = new URL(imagePath, c.req.url).toString();
+    const imageData = await c.env.ASSETS.fetch(imageUrl);
+
+    // Get content-type from response
+    const contentType = imageData.headers.get('content-type') || 'image/png';
+
+    const arrayBuffer = await imageData.arrayBuffer();
+    const base64Image = Buffer.from(arrayBuffer).toString('base64');
+    return `data:${contentType};base64,${base64Image}`;
+  } catch (error) {
+    console.warn(`Failed to load image ${imagePath}:`, error);
+    return null;
+  }
+}
+```
+
+This utility function:
+
+- Loads images from your Worker's assets
+- Automatically detects image content type
+- Converts images to base64 for use in OG images
+- Provides fallback handling if image loading fails
+
+Use it in your templates like this:
+
+```typescript
+const logoImage = await loadImage(c, '/images/your-logo.png');
+```
+
+:::note
+Make sure your images are stored in the `public/images` directory and referenced with paths starting with `/images/`.
+:::
+
+## 6. Implement the OG image generator
 
 Create the main image generation handler:
 
@@ -403,7 +476,7 @@ export default app.get('/', async (c) => {
 
 ```
 
-## 6. Add visual styles
+## 7. Add visual styles
 
 The OG image generator includes 4 distinct styles that can be selected via the `style` query parameter. The style selection is handled through a simple query parameter in the URL:
 
@@ -523,7 +596,7 @@ function Style1() {
 
 ```
 
-## 7. Configure caching
+## 8. Configure caching
 
 Enable caching to:
 
@@ -602,7 +675,9 @@ You can customize the image by adjusting query parameters:
 
 ## Conclusion
 
-You've now built a powerful OG image generator that runs at the edge. This solution provides:
+Congratulations! You’ve successfully harnessed the power of Cloudflare Workers to build a dynamic OG image generator. By leveraging the global edge network and serverless architecture, your application now delivers high-performance visuals with ease. Whether you’re scaling for millions of users or iterating on design tweaks, Cloudflare Workers ensure your images are always fast, reliable, and stunning.
+
+This solution provides:
 
 - Fast generation times through edge computing
 - Multiple font loading options

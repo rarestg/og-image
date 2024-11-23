@@ -17,3 +17,8 @@ declare module '*.woff' {
 interface CacheStorage {
 	default: Cache;
 }
+
+declare module '*.ttf' {
+	const content: ArrayBuffer;
+	export default content;
+}
