@@ -22,4 +22,3 @@ const app = new Hono()
 	.route('og', og);
 
 export default app;
-export type AppType = typeof app;

@@ -11,10 +11,22 @@ type FontConfig = {
 };
 
 /**
- * Fetches fonts from GitHub repository
- * Used for accessing fonts stored in Google Fonts' GitHub repository
- * Currently configured for Inria Sans Regular and Bold variants
- * Returns an array of font objects with data, name, style and weight
+ * Fetches fonts from GitHub repository with caching support
+ *
+ * Used for accessing fonts stored in Google Fonts' GitHub repository.
+ * Currently configured for Inria Sans Regular and Bold variants.
+ *
+ * @returns Promise<Array> of font objects, each containing:
+ *          - data: ArrayBuffer of the font file
+ *          - name: Font family name
+ *          - style: The font's style ('normal' or 'italic')
+ *          - weight: The font's weight (500 or 700)
+ *
+ * @throws Error if any font fails to fetch from GitHub
+ *
+ * @example
+ * const fonts = await githubFonts();
+ *
  */
 export const githubFonts = async () => {
 	const base = 'https://raw.githubusercontent.com/google/fonts/main/ofl/inriasans/';
@@ -58,7 +70,23 @@ export const githubFonts = async () => {
  * @param font - The name of the font family (e.g., "Roboto", "Open Sans")
  * @param weight - Font weight (100-900), defaults to 400
  * @param style - Font style ('normal' or 'italic'), defaults to 'normal'
- * @returns Promise containing font data, name, style, and weight
+ *
+ * @returns Promise containing font object with:
+ *          - data: ArrayBuffer of the font file
+ *          - name: Font family name
+ *          - style: The font's style
+ *          - weight: The font's weight
+ *
+ * @throws Error if the font fails to fetch or if the CSS parsing fails
+ *
+ * @example
+ * const font = await googleFont(
+ *   'Hello World',
+ *   'Roboto',
+ *   700,
+ *   'italic'
+ * );
+ *
  */
 export async function googleFont(
 	text: string,
@@ -100,11 +128,29 @@ export async function googleFont(
 // -------------------------------- Direct Access Font -------------------------------- //
 
 /**
- * Fetches a font directly from a URL
- * @param url - Direct URL to the font file
- * @param name - Font family name
- * @param weight - Font weight (100-900)
- * @param style - Font style ('normal' or 'italic')
+ * Fetches a font directly from a URL and handles caching
+ *
+ * @param url - Direct URL to the font file (e.g., 'https://example.com/fonts/Inter-Regular.ttf')
+ * @param name - Font family name to be used for referencing the font
+ * @param weight - Font weight (100-900), defaults to 400
+ * @param style - Font style ('normal' or 'italic'), defaults to 'normal'
+ *
+ * @returns Promise containing a font object with:
+ *          - data: ArrayBuffer of the font file
+ *          - name: Font family name
+ *          - style: The font's style
+ *          - weight: The font's weight
+ *
+ * @throws Error if the font fails to load or if the request fails
+ *
+ * @example
+ * const font = await directFont(
+ *   'https://example.com/fonts/Inter-Bold.ttf',
+ *   'Inter',
+ *   700,
+ *   'normal'
+ * );
+ *
  */
 export const directFont = async (
 	url: string,
@@ -145,9 +191,27 @@ export const directFont = async (
 // -------------------------------- Local Font -------------------------------- //
 
 /**
- * Loads multiple local font files and returns font data with metadata
- * @param c - Hono context for getting domain URL
- * @param fonts - Array of font configurations
+ * Loads and processes multiple local font files from the /fonts directory
+ *
+ * @param c - Hono context object used to construct the full font URL
+ * @param fonts - Array of font configurations, each containing:
+ *               - path: Relative path to font file in /fonts directory
+ *               - weight: Font weight (100-900)
+ *               - style: Font style ('normal' or 'italic'), defaults to 'normal'
+ *
+ * @returns Promise<Array> of font objects, each containing:
+ *          - data: ArrayBuffer of the font file
+ *          - name: Consistent font-family name for all variants
+ *          - style: The font's style ('normal' or 'italic')
+ *          - weight: The font's weight (100-900)
+ *
+ * @throws Error if any font file fails to load or if the request fails
+ *
+ * @example
+ * const fonts = await getLocalFonts(c, [
+ *   { path: 'Inter-Regular.ttf', weight: 400 },
+ *   { path: 'Inter-Bold.ttf', weight: 700 }
+ * ]);
  */
 export const getLocalFonts = async (
 	c: Context,
@@ -181,7 +245,25 @@ export const getLocalFonts = async (
 	}
 };
 
-// Keep the original getLocalFont for backward compatibility
+/**
+ * Single font loader utility - wraps getLocalFonts for simpler use cases
+ * @deprecated Consider using getLocalFonts for better font management
+ *
+ * @param c - Hono context for getting domain URL
+ * @param fontPath - Path to the font file
+ * @param weight - Font weight (100-900)
+ * @param style - Font style ('normal' or 'italic')
+ *
+ * @returns Promise containing a single font object with:
+ *          - data: ArrayBuffer of the font file
+ *          - name: Font family name
+ *          - style: The font's style
+ *          - weight: The font's weight
+ *
+ * @example
+ * const font = await getLocalFont(c, 'Inter-Regular.ttf', 400, 'normal');
+ * // Returns: { data: ArrayBuffer, name: 'font-family', style: 'normal', weight: 400 }
+ */
 export const getLocalFont = async (c: Context, fontPath: string, weight: Weight = 400, style: Style = 'normal') => {
 	const fonts = await getLocalFonts(c, [{ path: fontPath, weight, style }]);
 	return fonts[0];
