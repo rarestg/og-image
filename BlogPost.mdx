@@ -647,7 +647,56 @@ Make sure to configure appropriate cache durations based on your application's n
 
 :::
 
-## 8. Deploy your Worker
+## Setting Up TypeScript Type Definitions
+
+Let's create our type definitions to ensure smooth TypeScript integration. Create a new file `src/type.d.ts`:
+
+```typescript
+
+---
+
+filename: src/type.d.ts
+
+---
+
+
+interface CacheStorage {
+	default: Cache;
+}
+
+declare module '@cloudflare/pages-plugin-vercel-og/api' {
+	import { ImageResponse as VercelImageResponse } from '@vercel/og';
+	export declare class ImageResponse extends Response {
+		constructor(...args: ConstructorParameters<typeof VercelImageResponse>);
+	}
+}
+
+declare module '*.woff2' {
+	const content: ArrayBuffer;
+	export default content;
+}
+
+declare module '*.woff' {
+	const content: ArrayBuffer;
+	export default content;
+}
+
+declare module '*.ttf' {
+	const content: ArrayBuffer;
+	export default content;
+}
+
+```
+
+These type definitions are crucial for our project:
+
+- They enable TypeScript to understand Cloudflare's cache storage
+- Add proper typing for the Vercel OG image response
+- Allow direct importing of font files (`.woff2`, `.woff`, `.ttf`)
+
+With these definitions in place, you'll get full TypeScript support and autocompletion throughout your project. This makes development smoother and helps catch potential issues early.
+
+## 9. Deploy your Worker
 
 Deploy the application to Cloudflare Workers:
 
