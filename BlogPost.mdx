@@ -163,27 +163,26 @@ pnpm add -d @cloudflare/workers-types @types/bun @types/react @types/react-dom @
 
 ### Package.json configuration
 
-Update your `package.json` to include the type module and deployment scripts:
+Update the `package.json` file to include the type module and deployment scripts:
 
-```json:package.json
+```json
+
+---
+
+filename: package.json
+
+---
 
 {
 
-  "name": "og-image-generator",
-
-  "module": "index.ts",
-
-  "version": "1.0.0",
-
-  "type": "module",
-
-  "scripts": {
-
-    "dev": "wrangler dev src/index.ts",
-
-    "deploy": "wrangler deploy --minify src/index.ts"
-
-  }
+  "name": "og-image-generator-cloudlfare-worker",
+  "module": "index.ts",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev src/index.ts",
+    "deploy": "wrangler deploy --minify src/index.ts"
+  },
 
 }
 
@@ -193,74 +192,58 @@ The `type: "module"` field enables ES modules support, and the `--minify` flag i
 
 ### TypeScript configuration
 
-Create a `tsconfig.json` file with the following configuration:
+Update the `tsconfig.json` file with the following configuration:
 
-```json:tsconfig.json
+```json
 
+---
+
+filename: tsconfig.json
+
+---
 {
-
-  "compilerOptions": {
-
-    "target": "ESNext",
-
-    "lib": ["ESNext"],
-
-    "moduleDetection": "force",
-
-    "jsx": "react-jsx",
-
-    "module": "ESNext",
-
-    "moduleResolution": "bundler",
-
-    "types": [
-
-      "bun-types",
-
-      "hono",
-
-      "@cloudflare/workers-types/2023-07-01"
-
-    ],
-
-    "resolveJsonModule": true,
-
-    "esModuleInterop": true,
-
-    "allowJs": true,
-
-    "checkJs": false,
-
-    "noEmit": true,
-
-    "isolatedModules": true,
-
-    "allowSyntheticDefaultImports": true,
-
-    "forceConsistentCasingInFileNames": true,
-
-    "strict": true,
-
-    "skipLibCheck": true,
-
-    "noFallthroughCasesInSwitch": true,
-
-    "noUnusedLocals": false,
-
-    "noUnusedParameters": false,
-
-    "noPropertyAccessFromIndexSignature": false
-
-  },
-
-  "baseUrl": "./",
-
-  "paths": {
-
-    "@/*": ["./src/*"]
-
-  }
-
+  "compilerOptions": {
+    "target": "ESNext", // ECMAScript target version
+    "lib": [
+      "ESNext", // Standard library to use
+      // "DOM.Iterable",
+      // "DOM",
+    ],
+    "moduleDetection": "force",
+    "jsx": "react-jsx", // JSX compilation style
+    // "jsxImportSource": "hono/jsx",
+    "module": "ESNext", // Module code generation method
+    "moduleResolution": "bundler", // How to resolve modules
+    "types": [
+      // "./.wrangler/types/runtime", // Cloudflare Workers runtime types
+      // "@cloudflare/workers-types", // Cloudflare Workers API types
+      // "./runtime.d.ts"
+      "bun-types", // Bun runtime types
+      "hono", // Hono framework types
+      "@cloudflare/workers-types/2023-07-01"
+    ],
+    "resolveJsonModule": true, // Enable importing .json files
+    "esModuleInterop": true, // Allow default imports for CommonJS modules
+    "allowJs": true, // Allow importing `.js` from `.ts`
+    "checkJs": false, // Don't type-check .js files
+    "noEmit": true, // Don't output files
+    "isolatedModules": true, // Ensure each file can be safely transpiled
+    "allowSyntheticDefaultImports": true, // Allow 'import x from y' when module has no default export
+    "forceConsistentCasingInFileNames": true, // Ensure consistent casing in file names
+    "strict": true, // Enable all strict type checking options
+    "skipLibCheck": true, // Skip type checking of declaration files
+    "noFallthroughCasesInSwitch": true,
+    // Some stricter flags (disabled by default)
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false
+  },
+  "baseUrl": "./", // Base directory for resolving non-relative module names
+  "paths": {
+    "@/*": [ // Path alias configuration
+      "./src/*"
+    ]
+  }
 }
 
 ```
