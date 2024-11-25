@@ -13,8 +13,8 @@ languages:
   - React
 spotlight:
   author: Mohammed Abdulatef Al-Musaibeli
-  author_bio_link: https://www.linkedin.com/in/almusaibly/
-  author_bio_source: linkedin
+  author_bio_link: https://pwr.st
+  author_bio_source: website
 ---
 
 # Generate Dynamic OG Images using Cloudflare Workers
@@ -29,7 +29,7 @@ What you’ll accomplish:
 
 By the end, you’ll have a robust solution to enhance your social media presence.
 
-GitHub repository: [og-image-generator-cloudflare-worker](https://github.com/mohdlatif/og-image-generator-cloudflare-worker)
+GitHub repository: [Generate Dynamic OG Images using Cloudflare Workers](https://github.com/mohdlatif/og-image-generator-cloudflare-worker)
 
 ## Why Use Cloudflare Workers?
 
@@ -161,7 +161,7 @@ pnpm add -d @cloudflare/workers-types @types/bun @types/react @types/react-dom @
 
 ## 3. Configure project settings
 
-### Package.json configuration
+### Package.JSON configuration
 
 Update the `package.json` file to include the type module and deployment scripts:
 
@@ -188,7 +188,7 @@ filename: package.json
 
 ```
 
-The `type: "module"` field enables ES modules support, and the `--minify` flag in the deploy script ensures your worker code is optimized for production.
+The `type: "module"` field enables ES modules support, and the `--minify` flag in the deploy script ensures your Worker code is optimized for production.
 
 ### TypeScript configuration
 
@@ -270,7 +270,7 @@ minify = true
 watch_dir = "public"
 ```
 
-The `nodejs_compat_v2` flag enables runtime compatibility features required by the OG image generation library, even when using Bun. While we're using Bun as our development runtime, this flag ensures all necessary APIs are available in the Workers environment. The `assets` configuration maps your Worker's public directory, allowing direct access to static files like fonts, images, and favicons through URL paths (e.g., `/fonts/Inter.ttf`, `/images/logo.png`).
+The `nodejs_compat_v2` flag enables runtime compatibility features required by the OG image generation library, even when using Bun. While we're using Bun as our development runtime, this flag ensures all necessary APIs are available in the Workers environment. The `assets` configuration maps your Worker's public directory, allowing direct access to static files like fonts, images, and favicons through URL paths (for example, `/fonts/Inter.ttf`, `/images/logo.png`).
 
 ## 4. Configure font loading strategies
 
@@ -280,7 +280,7 @@ The generator supports four different font loading strategies, each with its own
 
    - Best for: Popular web fonts with dynamic text
    - Pros: Optimized delivery, wide font selection
-   - Cons: Requires internet connection
+   - Cons: Makes HTTP requests to Google Fonts API for each image generation
 
 2. **GitHub-hosted fonts** (Alternative for Google Fonts)
 
@@ -297,7 +297,7 @@ The generator supports four different font loading strategies, each with its own
 4. **Local font files** (For offline/private fonts)
    - Best for: Custom or licensed fonts
    - Pros: No external dependencies
-   - Cons: Increases worker bundle size
+   - Cons: Increases Worker bundle size
 
 Choose your strategy based on:
 
@@ -693,7 +693,9 @@ bun run deploy
 
 Generate OG images by making GET requests:
 
+```url
 https://your-worker.workers.dev/og?mainText=Hello%20World&description=A%20dynamic%20OG%20image&style=1
+```
 
 You can customize the image by adjusting query parameters:
 

@@ -107,9 +107,9 @@ export async function googleFont(
 			},
 		})
 	).text();
-	console.log(API, css);
+	// console.log(API, css);
 	const resource = css.match(/src: url\((.+)\) format\('(opentype|truetype)'\)/);
-	console.log('resource', resource);
+	// console.log('resource', resource);
 	if (!resource) {
 		throw new Error('Failed to fetch font');
 	}
