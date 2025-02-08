@@ -43,7 +43,7 @@ async function fetchAllocation(handle: string): Promise<number | null> {
   }
 }
 
-export default app.get('/airdrop/:handle?', async (c) => {
+export default app.on('GET', ['/airdrop/', '/airdrop/:handle?'], async (c) => {
 	try {
 		const handle = c.req.param('handle');
 		const totalAllocation = handle ? await fetchAllocation(handle) : null;
