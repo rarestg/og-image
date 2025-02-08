@@ -43,10 +43,10 @@ async function fetchAllocation(handle: string): Promise<number | null> {
   }
 }
 
-export default app.get('/airdrop', async (c) => {
+export default app.get('/airdrop/:handle?', async (c) => {
 	try {
-		const { handle } = c.req.query();
-		const totalAllocation = await fetchAllocation(handle);
+		const handle = c.req.param('handle');
+		const totalAllocation = handle ? await fetchAllocation(handle) : null;
 
 		const firstLine = handle ? `@${handle}` : 'February 2025';
 		const secondLine = totalAllocation !== null ? `${Number(totalAllocation).toLocaleString()} $AUDIO` : 'Airdrop';
