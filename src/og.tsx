@@ -48,12 +48,13 @@ export default app.on('GET', ['/airdrop/', '/airdrop/:handle?'], async (c) => {
 		const handle = c.req.param('handle');
 		const totalAllocation = handle ? await fetchAllocation(handle) : null;
 
-		const firstLine = handle ? `@${handle}` : 'February 2025';
-		const secondLine = totalAllocation !== null ? `${Number(totalAllocation).toLocaleString()} $AUDIO` : 'Airdrop';
+		const firstLine = handle ? `@${handle}` : '';
+		const secondLine =
+			totalAllocation !== null
+				? `${Number(totalAllocation).toLocaleString()} $AUDIO`
+				: 'Airdrop 2: Artist Appreciation';
 
-		const font = await getLocalFonts(c, [
-			{ path: 'Inter-Bold.ttf', weight: 700 },
-		]);
+		const font = await getLocalFonts(c, [{ path: 'Inter-Bold.ttf', weight: 700 }]);
 
 		async function renderOGImage() {
 			const backgroundImage = await loadImage(c, '/images/airdrop.png');
@@ -87,7 +88,8 @@ export default app.on('GET', ['/airdrop/', '/airdrop/:handle?'], async (c) => {
 							height: '100%',
 						}}
 					>
-						<div style={{
+						<div
+							style={{
 								display: 'flex',
 								flexDirection: 'column',
 								alignItems: 'flex-start',
