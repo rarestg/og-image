@@ -6,41 +6,41 @@ import { loadImage } from './loadImage';
 const app = new Hono();
 
 interface UserData {
-  data?: {
-    id: string;
-  };
+	data?: {
+		id: string;
+	};
 }
 
 interface Challenge {
-  challengeId: string;
-  currentStepCount: number;
+	challenge_id: string;
+	current_step_count: number;
 }
 
 interface ChallengeData {
-  data?: Challenge[];
+	data?: Challenge[];
 }
 
 async function fetchAllocation(handle: string): Promise<number | null> {
-  if (!handle) return null;
-  
-  const baseUrl = 'https://discoveryprovider.audius.co';
-  
-  try {
-    const userResponse = await fetch(`${baseUrl}/v1/users/handle/${handle}`);
-    const userData: UserData = await userResponse.json();
-    
-    if (!userData?.data?.id) return null;
-    
-    const challengesResponse = await fetch(`${baseUrl}/v1/users/${userData.data.id}/challenges`);
-    const challengeData: ChallengeData = await challengesResponse.json();
-    
-    const totalAllocation = challengeData?.data?.find(c => c.challengeId === 'o')?.currentStepCount ?? 0;
-    
-    return totalAllocation;
-  } catch (error) {
-    console.error('Error fetching user data:', error);
-    return null;
-  }
+	if (!handle) return null;
+
+	const baseUrl = 'https://discoveryprovider.audius.co';
+
+	try {
+		const userResponse = await fetch(`${baseUrl}/v1/users/handle/${handle}`);
+		const userData: UserData = await userResponse.json();
+
+		if (!userData?.data?.id) return null;
+
+		const challengesResponse = await fetch(`${baseUrl}/v1/users/${userData.data.id}/challenges`);
+		const challengeData: ChallengeData = await challengesResponse.json();
+
+		const totalAllocation = challengeData?.data?.find((c) => c.challenge_id === 'o')?.current_step_count ?? 0;
+
+		return totalAllocation;
+	} catch (error) {
+		console.error('Error fetching user data:', error);
+		return null;
+	}
 }
 
 export default app.on('GET', ['/airdrop/', '/airdrop/:handle?'], async (c) => {
