@@ -217,15 +217,25 @@ export const getLocalFonts = async (
 	c: Context,
 	fonts: FontConfig[]
 ): Promise<Array<{ data: ArrayBuffer; name: string; style: Style; weight: Weight }>> => {
+	console.log('=== getLocalFonts Started ===');
+	console.log('Input fonts config:', fonts);
+	console.log('Base URL:', c.req.url);
+
 	try {
 		const fontPromises = fonts.map(async ({ path, weight, style = 'normal' }) => {
 			const name = 'font-family';
 
 			// Use c.req.url as the base URL
 			const fontUrl = new URL(`/fonts/${path}`, c.req.url).toString();
+			console.log(`Loading font: ${path} from URL: ${fontUrl}`);
+
 			const response = await c.env.ASSETS.fetch(fontUrl);
+			console.log(`Font ${path} response status: ${response.status} ${response.statusText}`);
 
 			if (!response.ok) {
+				console.error(
+					`Failed to load font: ${path} - Status: ${response.status} ${response.statusText}. URL: ${fontUrl}`
+				);
 				throw new Error(
 					`Failed to load font: ${path} - Status: ${response.status} ${response.statusText}. URL: ${fontUrl}
 					}`
@@ -233,6 +243,7 @@ export const getLocalFonts = async (
 			}
 
 			const data = await response.arrayBuffer();
+			console.log(`Font ${path} loaded successfully, size: ${data.byteLength} bytes`);
 
 			return {
 				data,
@@ -242,8 +253,13 @@ export const getLocalFonts = async (
 			};
 		});
 
-		return Promise.all(fontPromises);
+		const loadedFonts = await Promise.all(fontPromises);
+		console.log('=== getLocalFonts Completed ===');
+		console.log(`Successfully loaded ${loadedFonts.length} fonts`);
+		return loadedFonts;
 	} catch (error: unknown) {
+		console.error('=== getLocalFonts Error ===');
+		console.error('Error details:', error);
 		throw new Error(`Failed to load fonts: ${error instanceof Error ? error.message : String(error)}`);
 	}
 };
