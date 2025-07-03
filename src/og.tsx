@@ -59,9 +59,9 @@ export default app
 									border: '1px solid rgba(255, 255, 255, 0.2)',
 								}}
 							>
-								<h1 tw="text-8xl font-bold text-white mb-6">{mainText}</h1>
-								<p tw="text-4xl text-white/90 mb-8">{description}</p>
-								<p tw="text-2xl text-white/70">{footerText}</p>
+								<h1 tw="text-9xl font-bold text-white mb-6">{mainText}</h1>
+								<p tw="text-6xl text-white/90 mb-8">{description}</p>
+								<p tw="text-4xl text-white/70">{footerText}</p>
 							</div>
 						</div>
 					);
@@ -90,9 +90,9 @@ export default app
 									textAlign: 'center',
 								}}
 							>
-								<h1 tw="text-8xl font-bold text-gray-900 mb-8">{mainText}</h1>
-								<p tw="text-5xl text-gray-800 mb-8 max-w-4xl">{description}</p>
-								<p tw="text-3xl text-gray-700">{footerText}</p>
+								<h1 tw="text-9xl font-bold text-gray-900 mb-8">{mainText}</h1>
+								<p tw="text-7xl text-gray-800 mb-8 max-w-4xl">{description}</p>
+								<p tw="text-5xl text-gray-700">{footerText}</p>
 							</div>
 						</div>
 					);
@@ -134,9 +134,9 @@ export default app
 									)}
 								</div>
 								<div style={{ display: 'flex', flexDirection: 'column' }}>
-									<h1 tw="text-8xl font-bold text-white mb-6">{mainText}</h1>
-									<p tw="text-4xl text-white/90 mb-8">{description}</p>
-									<p tw="text-2xl text-white/80">{footerText}</p>
+									<h1 tw="text-9xl font-bold text-white mb-6">{mainText}</h1>
+									<p tw="text-6xl text-white/90 mb-8">{description}</p>
+									<p tw="text-4xl text-white/80">{footerText}</p>
 								</div>
 							</div>
 						</div>
@@ -167,9 +167,9 @@ export default app
 								background: '#161b22',
 							}}
 						>
-							<h1 tw="text-8xl font-bold text-white mb-6">{mainText}</h1>
-							<p tw="text-4xl text-gray-300 mb-8">{description}</p>
-							<p tw="text-2xl text-gray-400">{footerText}</p>
+							<h1 tw="text-9xl font-bold text-white mb-6">{mainText}</h1>
+							<p tw="text-6xl text-gray-300 mb-8">{description}</p>
+							<p tw="text-4xl text-gray-400">{footerText}</p>
 						</div>
 					</div>
 				);

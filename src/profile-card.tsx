@@ -43,8 +43,8 @@ function calculateOptimalFontSize(text: string, maxWidth: number, fontFamily: st
 	// Character width ratios for different fonts
 	// These are rough estimates for bold fonts based on their typical character widths
 	const fontWidthRatios: { [key: string]: number } = {
-		Fraunces: 0.48, // Adjusted based on testing
-		default: 0.47, // Reduced to allow larger font sizes
+		Fraunces: 0.52, // Adjusted for wider characters in this font
+		default: 0.48, // Slightly increased for better default sizing
 	};
 
 	// Extract the primary font name from the fontFamily string
@@ -53,13 +53,16 @@ function calculateOptimalFontSize(text: string, maxWidth: number, fontFamily: st
 	// Get the appropriate ratio for this font
 	const charWidthRatio = fontWidthRatios[primaryFont] || fontWidthRatios['default'];
 
+	// Non-linear scaling: Apply a power to the text length to account for character width variations.
+	// An exponent of 1.015 gives a gentle scaling that prevents large jumps between similar-length names.
+	const effectiveLength = Math.pow(text.length, 1.015);
+
 	// Calculate the font size that would fit the text in the available width
-	// No safety factor needed with properly calibrated ratios
-	const calculatedSize = maxWidth / (text.length * charWidthRatio);
+	const calculatedSize = maxWidth / (effectiveLength * charWidthRatio);
 
 	// Clamp between min and max sizes
-	const minSize = 64; // Increased from 56
-	const maxSize = 105; // Optimal size for short names like "Emen Deng"
+	const minSize = 64;
+	const maxSize = 105; // Optimal size for short names
 
 	const finalSize = Math.floor(Math.min(maxSize, Math.max(minSize, calculatedSize)));
 
@@ -68,6 +71,7 @@ function calculateOptimalFontSize(text: string, maxWidth: number, fontFamily: st
 		textLength: text.length,
 		maxWidth: maxWidth,
 		charWidthRatio: charWidthRatio,
+		effectiveLength: effectiveLength,
 		calculatedSize: calculatedSize,
 		finalSize: finalSize,
 		clampedTo: finalSize === minSize ? 'MIN' : finalSize === maxSize ? 'MAX' : 'CALCULATED',
