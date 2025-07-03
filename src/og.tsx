@@ -43,9 +43,9 @@ export default app
 									border: '1px solid rgba(255, 255, 255, 0.2)',
 								}}
 							>
-								<h1 tw="text-5xl font-bold text-white mb-4">{mainText}</h1>
-								<p tw="text-2xl text-white/90 mb-8">{description}</p>
-								<p tw="text-lg text-white/70">{footerText}</p>
+								<h1 tw="text-8xl font-bold text-white mb-6">{mainText}</h1>
+								<p tw="text-4xl text-white/90 mb-8">{description}</p>
+								<p tw="text-2xl text-white/70">{footerText}</p>
 							</div>
 						</div>
 					);
@@ -74,9 +74,9 @@ export default app
 									textAlign: 'center',
 								}}
 							>
-								<h1 tw="text-6xl font-bold text-gray-900 mb-6">{mainText}</h1>
-								<p tw="text-3xl text-gray-800 mb-8 max-w-4xl">{description}</p>
-								<p tw="text-xl text-gray-700">{footerText}</p>
+								<h1 tw="text-8xl font-bold text-gray-900 mb-8">{mainText}</h1>
+								<p tw="text-5xl text-gray-800 mb-8 max-w-4xl">{description}</p>
+								<p tw="text-3xl text-gray-700">{footerText}</p>
 							</div>
 						</div>
 					);
@@ -118,9 +118,9 @@ export default app
 									)}
 								</div>
 								<div style={{ display: 'flex', flexDirection: 'column' }}>
-									<h1 tw="text-5xl font-bold text-white mb-4">{mainText}</h1>
-									<p tw="text-2xl text-white/90 mb-6">{description}</p>
-									<p tw="text-lg text-white/80">{footerText}</p>
+									<h1 tw="text-8xl font-bold text-white mb-6">{mainText}</h1>
+									<p tw="text-4xl text-white/90 mb-8">{description}</p>
+									<p tw="text-2xl text-white/80">{footerText}</p>
 								</div>
 							</div>
 						</div>
@@ -151,9 +151,9 @@ export default app
 								background: '#161b22',
 							}}
 						>
-							<h1 tw="text-5xl font-bold text-white mb-4">{mainText}</h1>
-							<p tw="text-2xl text-gray-300 mb-8">{description}</p>
-							<p tw="text-lg text-gray-400">{footerText}</p>
+							<h1 tw="text-8xl font-bold text-white mb-6">{mainText}</h1>
+							<p tw="text-4xl text-gray-300 mb-8">{description}</p>
+							<p tw="text-2xl text-gray-400">{footerText}</p>
 						</div>
 					</div>
 				);
@@ -171,11 +171,6 @@ export default app
 	})
 	.on('GET', ['/profile/', '/profile/:handle?'], async (c) => {
 		try {
-			console.log('=== Profile Card Generation Started ===');
-			console.log('Full URL:', c.req.url);
-			console.log('URL object:', new URL(c.req.url));
-			console.log('Search params:', new URL(c.req.url).searchParams.toString());
-
 			const handle = c.req.param('handle');
 			const title = c.req.query('title') || handle || 'John Doe';
 			const subtitle = c.req.query('subtitle') || 'Software Engineer';
@@ -183,33 +178,14 @@ export default app
 			const imageUrl = c.req.query('imageUrl') || c.req.query('image') || '';
 			const fontParam = c.req.query('font') || 'inter';
 
-			console.log('Raw query values:');
-			console.log('  title:', c.req.query('title'));
-			console.log('  subtitle:', c.req.query('subtitle'));
-			console.log('  description:', c.req.query('description'));
-			console.log('  imageUrl:', c.req.query('imageUrl'));
-
-			console.log('Parameters parsed:', {
-				handle,
-				title,
-				subtitle,
-				description,
-				imageUrl,
-				fontParam,
-			});
-
 			if (!imageUrl) {
-				console.log('Error: imageUrl parameter is missing');
 				return c.json({ error: 'imageUrl parameter is required' }, 400);
 			}
 
 			// Only accept external images (URLs starting with http/https)
 			if (!imageUrl.startsWith('http')) {
-				console.log('Error: imageUrl is not external:', imageUrl);
 				return c.json({ error: 'Only external image URLs are supported (must start with http/https)' }, 400);
 			}
-
-			console.log('External image URL validated:', imageUrl);
 
 			// Load the appropriate font based on the parameter
 			let fontConfig;
@@ -219,13 +195,9 @@ export default app
 			if (fontParam === 'avenir') {
 				fontConfig = [{ path: 'AvenirNextLTPro-Bold.ttf', weight: 700 as const }];
 				fontFamily = 'AvenirNextLTPro-Bold, -apple-system, sans-serif';
-				console.log('Font configuration:', { fontParam, fontFamily });
-				console.log('Loading local fonts...');
 				font = await getLocalFonts(c, fontConfig);
 			} else if (fontParam === 'geist') {
 				fontFamily = 'Geist, sans-serif';
-				console.log('Font configuration:', { fontParam, fontFamily });
-				console.log('Loading Google Font: Geist...');
 				// Load from Google Fonts - include all text that will be rendered
 				const allText = `${title} ${subtitle} ${description}`;
 				// Load multiple weights since component uses 700 (title), 600 (subtitle), 500 (description)
@@ -237,8 +209,6 @@ export default app
 				font = fonts.flat();
 			} else if (fontParam === 'fraunces') {
 				fontFamily = 'Fraunces, serif';
-				console.log('Font configuration:', { fontParam, fontFamily });
-				console.log('Loading Google Font: Fraunces...');
 				// Load from Google Fonts - include all text that will be rendered
 				const allText = `${title} ${subtitle} ${description}`;
 				// Load multiple weights since component uses 700 (title), 600 (subtitle), 500 (description)
@@ -251,13 +221,9 @@ export default app
 			} else {
 				fontConfig = [{ path: 'Inter-Bold.ttf', weight: 700 as const }];
 				fontFamily = 'Inter, -apple-system, sans-serif';
-				console.log('Font configuration:', { fontParam, fontFamily });
-				console.log('Loading local fonts...');
 				font = await getLocalFonts(c, fontConfig);
 			}
-			console.log('Fonts loaded successfully:', font ? 'Yes' : 'No');
 
-			console.log('Creating OG Image JSX component...');
 			const ogImageJsx = (
 				<OGImageComponent
 					title={title}
@@ -267,24 +233,16 @@ export default app
 					fontFamily={fontFamily}
 				/>
 			);
-			console.log('OG Image JSX component created');
 
-			console.log('Generating ImageResponse...');
 			const response = new ImageResponse(ogImageJsx, {
 				width: 1200,
 				height: 630,
 				fonts: Array.isArray(font) ? [...font] : [font],
 			});
-			console.log('ImageResponse generated successfully');
-			console.log('=== Profile Card Generation Completed ===');
 
 			return response;
 		} catch (error: any) {
-			console.error('=== Profile Card Generation Error ===');
-			console.error('Error details:', error);
-			console.error('Error stack:', error.stack);
-			console.error('Error message:', error.message);
-			console.error('Error name:', error.name);
+			console.error('Profile card generation error:', error);
 			return c.json({ error: 'Failed to generate profile card', details: error.message }, 500);
 		}
 	});

@@ -70,26 +70,12 @@ export function OGImageComponent({
 	imageUrl,
 	fontFamily = 'Inter, -apple-system, sans-serif',
 }: OGImageProps) {
-	console.log('=== OGImageComponent Rendering Started ===');
-	console.log('Component props:', {
-		title,
-		subtitle,
-		description,
-		imageUrl,
-		fontFamily,
-	});
-
 	const { bgGradient, textGradient } = getRandomGradients();
-	console.log('Generated gradients:', { bgGradient, textGradient });
 
 	// Calculate optimal font size for title (accounting for padding)
 	// More accurate calculation: total width (1200) - outer padding (96) - left section (420) - content padding (128)
 	const titleMaxWidth = 550; // More accurate available width
 	const titleFontSize = calculateOptimalFontSize(title, titleMaxWidth, fontFamily);
-	console.log('Font size calculation:', { titleMaxWidth, titleFontSize, titleLength: title.length });
-
-	console.log('=== OGImageComponent JSX Rendering ===');
-	console.log('About to return JSX with image URL:', imageUrl);
 
 	return (
 		<div
