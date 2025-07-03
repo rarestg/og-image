@@ -274,7 +274,37 @@
 							<span class="param-name">font</span>
 							<span class="param-type">string</span>
 							<div class="param-description">
-								Font family: "inter", "avenir", "geist", "fraunces" (default: "inter")
+								Font name from Google Fonts (e.g., "Roboto", "Lato") or "inter" for the default local font. (default:
+								"inter")
+							</div>
+						</div>
+						<div class="param">
+							<span class="param-name">minSize</span>
+							<span class="param-type">number</span>
+							<div class="param-description">Minimum font size for the title. (default: 64)</div>
+						</div>
+						<div class="param">
+							<span class="param-name">maxSize</span>
+							<span class="param-type">number</span>
+							<div class="param-description">Maximum font size for the title. (default: 105)</div>
+						</div>
+						<div class="param">
+							<span class="param-name">charWidthRatio</span>
+							<span class="param-type">number</span>
+							<div class="param-description">
+								Character width ratio for font size calculation. (default: varies by font)
+							</div>
+						</div>
+						<div class="param">
+							<span class="param-name">scalingExponent</span>
+							<span class="param-type">number</span>
+							<div class="param-description">Scaling exponent for dynamic font sizing. (default: 1.015)</div>
+						</div>
+						<div class="param">
+							<span class="param-name">fontFallback</span>
+							<span class="param-type">string</span>
+							<div class="param-description">
+								Fallback font family. Can be "serif" or "sans-serif". (default: "sans-serif")
 							</div>
 						</div>
 					</div>
@@ -282,11 +312,11 @@
 					<div class="example">
 						<h5>Example:</h5>
 						<a
-							href="/profile/?title=Jane%20Doe&subtitle=Full%20Stack%20Developer&imageUrl=https://avatars.githubusercontent.com/u/1?v=4&font=inter"
+							href="/profile/?title=Jane%20Doe&subtitle=Full%20Stack%20Developer&imageUrl=https://avatars.githubusercontent.com/u/1?v=4&font=Roboto&maxSize=120"
 							target="_blank"
 						>
 							<code
-								>/profile/?title=Jane%20Doe&subtitle=Full%20Stack%20Developer&imageUrl=https://avatars.githubusercontent.com/u/1?v=4&font=inter</code
+								>/profile/?title=Jane%20Doe&subtitle=Full%20Stack%20Developer&imageUrl=https://avatars.githubusercontent.com/u/1?v=4&font=Roboto&maxSize=120</code
 							>
 						</a>
 					</div>
@@ -332,7 +362,37 @@
 							<span class="param-name">font</span>
 							<span class="param-type">string</span>
 							<div class="param-description">
-								Font family: "inter", "avenir", "geist", "fraunces" (default: "inter")
+								Font name from Google Fonts (e.g., "Roboto", "Lato") or "inter" for the default local font. (default:
+								"inter")
+							</div>
+						</div>
+						<div class="param">
+							<span class="param-name">minSize</span>
+							<span class="param-type">number</span>
+							<div class="param-description">Minimum font size for the title. (default: 64)</div>
+						</div>
+						<div class="param">
+							<span class="param-name">maxSize</span>
+							<span class="param-type">number</span>
+							<div class="param-description">Maximum font size for the title. (default: 105)</div>
+						</div>
+						<div class="param">
+							<span class="param-name">charWidthRatio</span>
+							<span class="param-type">number</span>
+							<div class="param-description">
+								Character width ratio for font size calculation. (default: varies by font)
+							</div>
+						</div>
+						<div class="param">
+							<span class="param-name">scalingExponent</span>
+							<span class="param-type">number</span>
+							<div class="param-description">Scaling exponent for dynamic font sizing. (default: 1.015)</div>
+						</div>
+						<div class="param">
+							<span class="param-name">fontFallback</span>
+							<span class="param-type">string</span>
+							<div class="param-description">
+								Fallback font family. Can be "serif" or "sans-serif". (default: "sans-serif")
 							</div>
 						</div>
 					</div>
@@ -340,11 +400,11 @@
 					<div class="example">
 						<h5>Example:</h5>
 						<a
-							href="/profile/johndoe?subtitle=DevOps%20Engineer&imageUrl=https://avatars.githubusercontent.com/u/1?v=4&font=geist"
+							href="/profile/johndoe?subtitle=DevOps%20Engineer&imageUrl=https://avatars.githubusercontent.com/u/1?v=4&font=Fascinate&fontFallback=serif"
 							target="_blank"
 						>
 							<code
-								>/profile/johndoe?subtitle=DevOps%20Engineer&imageUrl=https://avatars.githubusercontent.com/u/1?v=4&font=geist</code
+								>/profile/johndoe?subtitle=DevOps%20Engineer&imageUrl=https://avatars.githubusercontent.com/u/1?v=4&font=Fascinate&fontFallback=serif</code
 							>
 						</a>
 					</div>
@@ -360,8 +420,57 @@
 					<li><strong>External Images:</strong> Profile routes only accept external URLs starting with http/https</li>
 					<li><strong>URL Encoding:</strong> Remember to URL encode special characters in query parameters</li>
 					<li><strong>Caching:</strong> Images are cached for better performance</li>
-					<li><strong>Fonts:</strong> Choose from Inter, Avenir, Geist, or Fraunces for different visual styles</li>
+					<li>
+						<strong>Fonts:</strong> Use "inter" for a local font or provide any Google Font name (e.g., "Roboto Mono",
+						"Fascinate") for the profile card.
+					</li>
 				</ul>
+			</div>
+
+			<div class="section">
+				<h2>🎨 Font Weight Requirements</h2>
+				<p>The profile card component uses multiple font weights to create visual hierarchy:</p>
+				<ul>
+					<li><strong>Title:</strong> 700 (bold) - Most prominent</li>
+					<li><strong>Subtitle:</strong> 600 (semi-bold) - Medium prominence</li>
+					<li><strong>Description:</strong> 500 (medium) - Least prominent</li>
+				</ul>
+
+				<div class="version-info">
+					<h4>⚠️ Important Font Compatibility</h4>
+					<p><strong>Required:</strong> At minimum, fonts must support weight 700 (bold) for the title.</p>
+					<p>
+						<strong>Recommended:</strong> For best visual hierarchy, choose fonts that support weights 400, 500, 600,
+						and 700.
+					</p>
+					<p>
+						<strong>Fallback:</strong> Missing weights will fall back to the closest available weight automatically.
+					</p>
+				</div>
+
+				<div class="example">
+					<h5>✅ Recommended Fonts (Full Weight Support):</h5>
+					<ul style="margin: 10px 0; padding-left: 20px">
+						<li><strong>Roboto</strong> - Clean, modern sans-serif</li>
+						<li><strong>Inter</strong> - Optimized for UI (default local font)</li>
+						<li><strong>Open Sans</strong> - Highly readable</li>
+						<li><strong>Poppins</strong> - Modern geometric sans-serif</li>
+						<li><strong>Montserrat</strong> - Stylish sans-serif</li>
+						<li><strong>Nunito</strong> - Rounded, friendly</li>
+					</ul>
+				</div>
+
+				<div class="example">
+					<h5>⚠️ Limited Weight Fonts (Will Work with Fallbacks):</h5>
+					<ul style="margin: 10px 0; padding-left: 20px">
+						<li><strong>Lato</strong> - Supports 100, 300, 400, 700, 900 (missing 500, 600)</li>
+						<li><strong>Oswald</strong> - Supports 200-700 (missing some intermediate weights)</li>
+						<li><strong>Raleway</strong> - Variable font (good support)</li>
+					</ul>
+					<p style="margin-top: 10px; font-style: italic; color: #666">
+						These fonts will still work, but may have less ideal visual hierarchy due to missing intermediate weights.
+					</p>
+				</div>
 			</div>
 
 			<div class="footer">

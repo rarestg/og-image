@@ -77,8 +77,22 @@ function getRandomGradients() {
 	return { bgGradient, textGradient };
 }
 
+export interface OptimalFontSizeConfig {
+	minSize?: number;
+	maxSize?: number;
+	charWidthRatio?: number;
+	scalingExponent?: number;
+}
+
 // Function to calculate optimal font size based on text length and container width
-function calculateOptimalFontSize(text: string, maxWidth: number, fontFamily: string): number {
+function calculateOptimalFontSize(
+	text: string,
+	maxWidth: number,
+	fontFamily: string,
+	config: OptimalFontSizeConfig = {}
+): number {
+	const { minSize = 64, maxSize = 105, charWidthRatio: configCharWidthRatio, scalingExponent = 1.015 } = config;
+
 	// Character width ratios for different fonts
 	// These are rough estimates for bold fonts based on their typical character widths
 	const fontWidthRatios: { [key: string]: number } = {
@@ -90,19 +104,16 @@ function calculateOptimalFontSize(text: string, maxWidth: number, fontFamily: st
 	const primaryFont = fontFamily.split(',')[0].trim().replace(/['"]/g, '');
 
 	// Get the appropriate ratio for this font
-	const charWidthRatio = fontWidthRatios[primaryFont] || fontWidthRatios['default'];
+	const charWidthRatio = configCharWidthRatio || fontWidthRatios[primaryFont] || fontWidthRatios['default'];
 
 	// Non-linear scaling: Apply a power to the text length to account for character width variations.
 	// An exponent of 1.015 gives a gentle scaling that prevents large jumps between similar-length names.
-	const effectiveLength = Math.pow(text.length, 1.015);
+	const effectiveLength = Math.pow(text.length, scalingExponent);
 
 	// Calculate the font size that would fit the text in the available width
 	const calculatedSize = maxWidth / (effectiveLength * charWidthRatio);
 
 	// Clamp between min and max sizes
-	const minSize = 64;
-	const maxSize = 105; // Optimal size for short names
-
 	const finalSize = Math.floor(Math.min(maxSize, Math.max(minSize, calculatedSize)));
 
 	// Debug logging
@@ -125,7 +136,8 @@ export function OGImageComponent({
 	description,
 	imageUrl,
 	fontFamily = 'Inter, -apple-system, sans-serif',
-}: OGImageProps) {
+	fontSizeConfig,
+}: OGImageProps & { fontSizeConfig?: OptimalFontSizeConfig }) {
 	const { bgGradient, textGradient } = getRandomGradients();
 
 	// Check if title contains line breaks (for nowrap styling decision)
@@ -134,7 +146,7 @@ export function OGImageComponent({
 	// Calculate optimal font size for title (accounting for padding)
 	// More accurate calculation: total width (1200) - outer padding (96) - left section (420) - content padding (128)
 	const titleMaxWidth = 550; // More accurate available width
-	const titleFontSize = calculateOptimalFontSize(title, titleMaxWidth, fontFamily);
+	const titleFontSize = calculateOptimalFontSize(title, titleMaxWidth, fontFamily, fontSizeConfig);
 
 	return (
 		<div
@@ -231,7 +243,7 @@ export function OGImageComponent({
 					<h2
 						style={{
 							fontSize: '42px',
-							fontWeight: '600',
+							fontWeight: '600', // Falls back to bold (700) or normal (400) if 600 isn't available
 							letterSpacing: '-0.5px',
 							color: '#374151',
 							marginBottom: description ? '16px' : '0px',
@@ -260,7 +272,7 @@ export function OGImageComponent({
 						<p
 							style={{
 								fontSize: '28px',
-								fontWeight: '500',
+								fontWeight: '500', // Falls back to normal (400) or bold (700) if 500 isn't available
 								color: '#6B7280',
 								lineHeight: '1.4',
 								maxWidth: '500px',

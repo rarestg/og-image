@@ -8,14 +8,93 @@ import { generateDocumentationHTML } from './documentation';
 const app = new Hono();
 
 /**
- * Clean Unicode variation selectors and other invisible characters from text
- * This prevents emoji variation selectors (like U+FE0F) from rendering as visible glyphs
+ * Render an error message as an image using the eco/green theme
+ * @param errorMessage - The error message to display
+ * @param context - The Hono context for loading fonts
+ * @returns ImageResponse with the error message rendered
  */
-function cleanUnicodeText(text: string): string {
-	return text
-		.normalize('NFC') // Normalize the Unicode
-		.replace(/[\uFE0F\uFE0E]/g, '') // Remove variation selectors
-		.replace(/[\u200D\u200C]/g, ''); // Remove zero-width joiners
+async function renderErrorImage(errorMessage: string, context: any): Promise<ImageResponse> {
+	try {
+		// Load font for error display
+		const font = await getLocalFonts(context, [{ path: 'Inter-Bold.ttf', weight: 700 }]);
+
+		// Truncate very long error messages to fit better
+		const displayMessage = errorMessage.length > 500 ? errorMessage.substring(0, 500) + '...' : errorMessage;
+
+		const errorImageJsx = (
+			<div
+				style={{
+					width: '100%',
+					height: '100%',
+					display: 'flex',
+					flexDirection: 'column',
+					background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+					padding: '48px',
+				}}
+			>
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						flex: 1,
+						justifyContent: 'center',
+						alignItems: 'center',
+						textAlign: 'center',
+						background: 'rgba(255, 255, 255, 0.95)',
+						borderRadius: '24px',
+						padding: '48px',
+						border: '4px solid #dc2626',
+					}}
+				>
+					<h1
+						style={{
+							fontSize: '72px',
+							fontWeight: 'bold',
+							color: '#dc2626',
+							marginBottom: '32px',
+							textAlign: 'center',
+						}}
+					>
+						⚠️ Error
+					</h1>
+					<p
+						style={{
+							fontSize: '32px',
+							color: '#374151',
+							lineHeight: '1.4',
+							maxWidth: '1000px',
+							textAlign: 'center',
+							whiteSpace: 'pre-wrap',
+							wordBreak: 'break-word',
+						}}
+					>
+						{parseTextWithBreaks(displayMessage)}
+					</p>
+					<p
+						style={{
+							fontSize: '24px',
+							color: '#6B7280',
+							marginTop: '32px',
+							textAlign: 'center',
+						}}
+					>
+						Check your parameters and try again
+					</p>
+				</div>
+			</div>
+		);
+
+		return new ImageResponse(errorImageJsx, {
+			width: 1200,
+			height: 630,
+			fonts: Array.isArray(font) ? [...font] : [font],
+			emoji: 'twemoji',
+		});
+	} catch (fallbackError: any) {
+		// If even the error image fails to render, return a basic error response
+		console.error('Failed to render error image:', fallbackError);
+		throw new Error(`Original error: ${errorMessage}. Error rendering failed: ${fallbackError.message}`);
+	}
 }
 
 /**
@@ -64,9 +143,9 @@ export default app
 	})
 	.on('GET', '/og', async (c) => {
 		try {
-			const mainText = cleanUnicodeText(c.req.query('mainText') || 'Default Title');
-			const description = cleanUnicodeText(c.req.query('description') || 'Default Description');
-			const footerText = cleanUnicodeText(c.req.query('footerText') || 'Footer Text');
+			const mainText = c.req.query('mainText') || 'Default Title';
+			const description = c.req.query('description') || 'Default Description';
+			const footerText = c.req.query('footerText') || 'Footer Text';
 			const style = c.req.query('style') || '1';
 
 			const font = await getLocalFonts(c, [{ path: 'Inter-Bold.ttf', weight: 700 }]);
@@ -222,65 +301,122 @@ export default app
 				width: 1200,
 				height: 630,
 				fonts: Array.isArray(font) ? [...font] : [font],
+				emoji: 'twemoji',
 			});
 		} catch (error: any) {
 			console.error('OG Image generation error:', error);
-			return c.json({ error: 'Failed to generate image', details: error.message }, 500);
+			return await renderErrorImage(`Failed to generate image: ${error.message}`, c);
 		}
 	})
 	.on('GET', ['/profile/', '/profile/:handle?'], async (c) => {
 		try {
 			const handle = c.req.param('handle');
-			const title = cleanUnicodeText(c.req.query('title') || handle || 'John Doe');
-			const subtitle = cleanUnicodeText(c.req.query('subtitle') || 'Software Engineer');
-			const description = cleanUnicodeText(c.req.query('description') || '');
+			const title = c.req.query('title') || handle || 'John Doe';
+			const subtitle = c.req.query('subtitle') || 'Software Engineer';
+			const description = c.req.query('description') || '';
 			const imageUrl = c.req.query('imageUrl') || c.req.query('image') || '';
 			const fontParam = c.req.query('font') || 'inter';
+			const fontFallback = c.req.query('fontFallback') || 'sans-serif';
+
+			// Font size configuration
+			const minSize = c.req.query('minSize');
+			const maxSize = c.req.query('maxSize');
+			const charWidthRatio = c.req.query('charWidthRatio');
+			const scalingExponent = c.req.query('scalingExponent');
+
+			const fontSizeConfig: import('./profile-card').OptimalFontSizeConfig = {};
+			if (minSize) fontSizeConfig.minSize = parseInt(minSize, 10);
+			if (maxSize) fontSizeConfig.maxSize = parseInt(maxSize, 10);
+			if (charWidthRatio) fontSizeConfig.charWidthRatio = parseFloat(charWidthRatio);
+			if (scalingExponent) fontSizeConfig.scalingExponent = parseFloat(scalingExponent);
 
 			if (!imageUrl) {
-				return c.json({ error: 'imageUrl parameter is required' }, 400);
+				return await renderErrorImage('imageUrl parameter is required', c);
 			}
 
 			// Only accept external images (URLs starting with http/https)
 			if (!imageUrl.startsWith('http')) {
-				return c.json({ error: 'Only external image URLs are supported (must start with http/https)' }, 400);
+				return await renderErrorImage('Only external image URLs are supported (must start with http/https)', c);
 			}
 
+			// Pre-fetch the image and convert it to a data URI to handle fetch errors upfront
+			const imageFetchResponse = await fetch(imageUrl);
+			if (!imageFetchResponse.ok) {
+				throw new Error(`Failed to fetch image. Status: ${imageFetchResponse.status} ${imageFetchResponse.statusText}`);
+			}
+
+			const imageBuffer = await imageFetchResponse.arrayBuffer();
+			const imageType = imageFetchResponse.headers.get('content-type');
+
+			if (!imageType || !imageType.startsWith('image/')) {
+				throw new Error(`Invalid content-type. URL did not return an image: ${imageType || 'unknown'}`);
+			}
+
+			const base64 = btoa(new Uint8Array(imageBuffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+			const imageDataUri = `data:${imageType};base64,${base64}`;
+
 			// Load the appropriate font based on the parameter
-			let fontConfig;
 			let fontFamily;
 			let font;
 
-			if (fontParam === 'avenir') {
-				fontConfig = [{ path: 'AvenirNextLTPro-Bold.ttf', weight: 700 as const }];
-				fontFamily = 'AvenirNextLTPro-Bold, -apple-system, sans-serif';
-				font = await getLocalFonts(c, fontConfig);
-			} else if (fontParam === 'geist') {
-				fontFamily = 'Geist, sans-serif';
-				// Load from Google Fonts - include all text that will be rendered
-				const allText = `${title} ${subtitle} ${description}`;
-				// Load multiple weights since component uses 700 (title), 600 (subtitle), 500 (description)
-				const fonts = await Promise.all([
-					googleFont(allText, 'Geist', 700, 'normal'),
-					googleFont(allText, 'Geist', 600, 'normal'),
-					googleFont(allText, 'Geist', 500, 'normal'),
-				]);
-				font = fonts.flat();
-			} else if (fontParam === 'fraunces') {
-				fontFamily = 'Fraunces, serif';
-				// Load from Google Fonts - include all text that will be rendered
-				const allText = `${title} ${subtitle} ${description}`;
-				// Load multiple weights since component uses 700 (title), 600 (subtitle), 500 (description)
-				const fonts = await Promise.all([
-					googleFont(allText, 'Fraunces', 700, 'normal'),
-					googleFont(allText, 'Fraunces', 600, 'normal'),
-					googleFont(allText, 'Fraunces', 500, 'normal'),
-				]);
-				font = fonts.flat();
-			} else {
-				fontConfig = [{ path: 'Inter-Bold.ttf', weight: 700 as const }];
+			if (fontParam.toLowerCase() === 'inter') {
 				fontFamily = 'Inter, -apple-system, sans-serif';
-				font = await getLocalFonts(c, fontConfig);
+				font = await getLocalFonts(c, [{ path: 'Inter-Bold.ttf', weight: 700 as const }]);
+			} else {
+				try {
+					// Use Google Fonts for any other font name
+					const fallback = fontFallback.toLowerCase() === 'serif' ? 'serif' : 'sans-serif';
+					fontFamily = `'${fontParam}', ${fallback}`;
+					const allText = `${title} ${subtitle} ${description}`;
+
+					// Try to load the required font weights: 700 (bold), 600 (semi-bold), 500 (medium)
+					const requiredWeights = [700, 600, 500] as const;
+					const fontPromises = requiredWeights.map(async (weight) => {
+						try {
+							return await googleFont(allText, fontParam, weight, 'normal');
+						} catch (error) {
+							// Return null for weights that fail to load
+							console.warn(`Failed to load weight ${weight} for font '${fontParam}':`, error);
+							return null;
+						}
+					});
+
+					const fontResults = await Promise.all(fontPromises);
+					const successfulFonts = fontResults.filter((font): font is NonNullable<typeof font> => font !== null);
+
+					if (successfulFonts.length === 0) {
+						return await renderErrorImage(
+							`Font '${fontParam}' could not be loaded from Google Fonts. Please ensure it's a valid Google Font name.`,
+							c
+						);
+					}
+
+					// Check if we have the minimum required weights
+					const loadedWeights = successfulFonts.map((font) => font.weight);
+					const hasMinimumWeights = loadedWeights.includes(700); // At least need bold for title
+
+					if (!hasMinimumWeights) {
+						return await renderErrorImage(
+							`Font '${fontParam}' doesn't support the required font weights. This component needs at least weight 700 (bold) for proper visual hierarchy. Available weights for ${fontParam}: check Google Fonts documentation.`,
+							c
+						);
+					}
+
+					// If we're missing some weights, inform but continue
+					const missingWeights = requiredWeights.filter((weight) => !loadedWeights.includes(weight));
+					if (missingWeights.length > 0) {
+						console.warn(
+							`Font '${fontParam}' is missing weights: ${missingWeights.join(
+								', '
+							)}. The component will use available weights and may fall back to browser defaults for missing weights.`
+						);
+					}
+
+					font = successfulFonts;
+				} catch (e: any) {
+					console.error(`Failed to load Google Font '${fontParam}':`, e);
+					return await renderErrorImage(`Failed to load font '${fontParam}'. Ensure it's a valid Google Font name.`, c);
+				}
 			}
 
 			const ogImageJsx = (
@@ -288,8 +424,9 @@ export default app
 					title={title}
 					subtitle={subtitle}
 					description={description}
-					imageUrl={imageUrl}
+					imageUrl={imageDataUri}
 					fontFamily={fontFamily}
+					fontSizeConfig={fontSizeConfig}
 				/>
 			);
 
@@ -297,11 +434,12 @@ export default app
 				width: 1200,
 				height: 630,
 				fonts: Array.isArray(font) ? [...font] : [font],
+				emoji: 'twemoji',
 			});
 
 			return response;
 		} catch (error: any) {
 			console.error('Profile card generation error:', error);
-			return c.json({ error: 'Failed to generate profile card', details: error.message }, 500);
+			return await renderErrorImage(`Failed to generate profile card: ${error.message}`, c);
 		}
 	});
