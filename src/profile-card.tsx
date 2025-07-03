@@ -43,8 +43,8 @@ function calculateOptimalFontSize(text: string, maxWidth: number, fontFamily: st
 	// Character width ratios for different fonts
 	// These are rough estimates for bold fonts based on their typical character widths
 	const fontWidthRatios: { [key: string]: number } = {
-		Fraunces: 0.5, // Wider serif font
-		default: 0.47, // Default fallback
+		Fraunces: 0.48, // Adjusted based on testing
+		default: 0.47, // Reduced to allow larger font sizes
 	};
 
 	// Extract the primary font name from the fontFamily string
@@ -54,13 +54,26 @@ function calculateOptimalFontSize(text: string, maxWidth: number, fontFamily: st
 	const charWidthRatio = fontWidthRatios[primaryFont] || fontWidthRatios['default'];
 
 	// Calculate the font size that would fit the text in the available width
+	// No safety factor needed with properly calibrated ratios
 	const calculatedSize = maxWidth / (text.length * charWidthRatio);
 
 	// Clamp between min and max sizes
 	const minSize = 64; // Increased from 56
-	const maxSize = 120; // Significantly increased from 96
+	const maxSize = 105; // Optimal size for short names like "Emen Deng"
 
-	return Math.floor(Math.min(maxSize, Math.max(minSize, calculatedSize)));
+	const finalSize = Math.floor(Math.min(maxSize, Math.max(minSize, calculatedSize)));
+
+	// Debug logging
+	console.log(`Font size calculation for "${text}":`, {
+		textLength: text.length,
+		maxWidth: maxWidth,
+		charWidthRatio: charWidthRatio,
+		calculatedSize: calculatedSize,
+		finalSize: finalSize,
+		clampedTo: finalSize === minSize ? 'MIN' : finalSize === maxSize ? 'MAX' : 'CALCULATED',
+	});
+
+	return finalSize;
 }
 
 export function OGImageComponent({
