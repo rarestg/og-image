@@ -6,6 +6,45 @@ export interface OGImageProps {
 	fontFamily?: string;
 }
 
+/**
+ * Parse text with line breaks and return JSX elements
+ * Supports both \n and <br> tags by creating a flex column layout for multi-line text
+ * @param text - The text to parse, may contain \n or <br> tags
+ * @returns JSX element with proper line breaks rendered as block elements
+ */
+function parseTextWithBreaks(text: string): JSX.Element {
+	// Handle empty or whitespace-only text
+	if (!text || !text.trim()) {
+		return <>{text}</>;
+	}
+
+	// First replace <br> tags with \n to normalize
+	const normalized = text.replace(/<br\s*\/?>/gi, '\n');
+
+	// Split by \n and create JSX elements
+	const lines = normalized.split('\n');
+
+	// If no line breaks, return simple text
+	if (lines.length === 1) {
+		return <>{lines[0]}</>;
+	}
+
+	// For multiple lines, create a flex column layout
+	// This approach works better than CSS whiteSpace in workers-og environment
+	return (
+		<div style={{ display: 'flex', flexDirection: 'column' }}>
+			{lines.map((line, index) => (
+				<span
+					key={index}
+					style={{ display: 'block' }}
+				>
+					{line.trim()}
+				</span>
+			))}
+		</div>
+	);
+}
+
 // Modern gradient combinations for backgrounds
 const backgroundGradients = [
 	// Soft pastel gradients
@@ -89,6 +128,9 @@ export function OGImageComponent({
 }: OGImageProps) {
 	const { bgGradient, textGradient } = getRandomGradients();
 
+	// Check if title contains line breaks (for nowrap styling decision)
+	const titleHasLineBreaks = title.includes('\n') || /<br\s*\/?>/i.test(title);
+
 	// Calculate optimal font size for title (accounting for padding)
 	// More accurate calculation: total width (1200) - outer padding (96) - left section (420) - content padding (128)
 	const titleMaxWidth = 550; // More accurate available width
@@ -165,26 +207,27 @@ export function OGImageComponent({
 						backgroundColor: '#fafafa',
 					}}
 				>
-					{/* Title with gradient */}
+					{/* Title with gradient - supports line breaks via \n or <br> tags */}
 					<h1
 						style={{
 							fontSize: `${titleFontSize}px`,
 							fontWeight: 'bold',
 							letterSpacing: '-2px',
-							lineHeight: '1.25', // Increased from 1.1 to accommodate descenders
-							marginBottom: '12px', // Slightly reduced to compensate for increased line height
+							lineHeight: '1.25',
+							marginBottom: '12px',
 							backgroundImage: textGradient,
 							backgroundClip: 'text',
 							WebkitBackgroundClip: 'text',
 							color: 'transparent',
 							WebkitTextFillColor: 'transparent',
-							whiteSpace: 'nowrap', // Prevent wrapping
+							// Only prevent wrapping for single-line titles to maintain design
+							whiteSpace: titleHasLineBreaks ? 'normal' : 'nowrap',
 						}}
 					>
-						{title}
+						{parseTextWithBreaks(title)}
 					</h1>
 
-					{/* Subtitle */}
+					{/* Subtitle - supports line breaks via \n or <br> tags */}
 					<h2
 						style={{
 							fontSize: '42px',
@@ -192,9 +235,10 @@ export function OGImageComponent({
 							letterSpacing: '-0.5px',
 							color: '#374151',
 							marginBottom: description ? '16px' : '0px',
+							lineHeight: '1.3',
 						}}
 					>
-						{subtitle}
+						{parseTextWithBreaks(subtitle)}
 					</h2>
 
 					{/* Separator line - only show if description exists */}
@@ -211,7 +255,7 @@ export function OGImageComponent({
 						/>
 					)}
 
-					{/* Description - only show if it exists */}
+					{/* Description - supports line breaks via \n or <br> tags */}
 					{description && (
 						<p
 							style={{
@@ -222,7 +266,7 @@ export function OGImageComponent({
 								maxWidth: '500px',
 							}}
 						>
-							{description.length > 100 ? description.substring(0, 100) + '...' : description}
+							{parseTextWithBreaks(description.length > 100 ? description.substring(0, 100) + '...' : description)}
 						</p>
 					)}
 				</div>

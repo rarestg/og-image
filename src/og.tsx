@@ -18,6 +18,45 @@ function cleanUnicodeText(text: string): string {
 		.replace(/[\u200D\u200C]/g, ''); // Remove zero-width joiners
 }
 
+/**
+ * Parse text with line breaks and return JSX elements
+ * Supports both \n and <br> tags by creating a flex column layout for multi-line text
+ * @param text - The text to parse, may contain \n or <br> tags
+ * @returns JSX element with proper line breaks rendered as block elements
+ */
+function parseTextWithBreaks(text: string): JSX.Element {
+	// Handle empty or whitespace-only text
+	if (!text || !text.trim()) {
+		return <>{text}</>;
+	}
+
+	// First replace <br> tags with \n to normalize
+	const normalized = text.replace(/<br\s*\/?>/gi, '\n');
+
+	// Split by \n and create JSX elements
+	const lines = normalized.split('\n');
+
+	// If no line breaks, return simple text
+	if (lines.length === 1) {
+		return <>{lines[0]}</>;
+	}
+
+	// For multiple lines, create a flex column layout
+	// This approach works better than CSS whiteSpace in workers-og environment
+	return (
+		<div style={{ display: 'flex', flexDirection: 'column' }}>
+			{lines.map((line, index) => (
+				<span
+					key={index}
+					style={{ display: 'block' }}
+				>
+					{line.trim()}
+				</span>
+			))}
+		</div>
+	);
+}
+
 export default app
 	.on('GET', '/', async (c) => {
 		const html = generateDocumentationHTML();
@@ -59,9 +98,10 @@ export default app
 									border: '1px solid rgba(255, 255, 255, 0.2)',
 								}}
 							>
-								<h1 tw="text-9xl font-bold text-white mb-6">{mainText}</h1>
-								<p tw="text-6xl text-white/90 mb-8">{description}</p>
-								<p tw="text-4xl text-white/70">{footerText}</p>
+								{/* All text elements support line breaks via \n or <br> tags */}
+								<h1 tw="text-9xl font-bold text-white mb-6">{parseTextWithBreaks(mainText)}</h1>
+								<p tw="text-6xl text-white/90 mb-8">{parseTextWithBreaks(description)}</p>
+								<p tw="text-4xl text-white/70">{parseTextWithBreaks(footerText)}</p>
 							</div>
 						</div>
 					);
@@ -90,9 +130,10 @@ export default app
 									textAlign: 'center',
 								}}
 							>
-								<h1 tw="text-9xl font-bold text-gray-900 mb-8">{mainText}</h1>
-								<p tw="text-7xl text-gray-800 mb-8 max-w-4xl">{description}</p>
-								<p tw="text-5xl text-gray-700">{footerText}</p>
+								{/* All text elements support line breaks via \n or <br> tags */}
+								<h1 tw="text-9xl font-bold text-gray-900 mb-8">{parseTextWithBreaks(mainText)}</h1>
+								<p tw="text-7xl text-gray-800 mb-8 max-w-4xl">{parseTextWithBreaks(description)}</p>
+								<p tw="text-5xl text-gray-700">{parseTextWithBreaks(footerText)}</p>
 							</div>
 						</div>
 					);
@@ -134,9 +175,10 @@ export default app
 									)}
 								</div>
 								<div style={{ display: 'flex', flexDirection: 'column' }}>
-									<h1 tw="text-9xl font-bold text-white mb-6">{mainText}</h1>
-									<p tw="text-6xl text-white/90 mb-8">{description}</p>
-									<p tw="text-4xl text-white/80">{footerText}</p>
+									{/* All text elements support line breaks via \n or <br> tags */}
+									<h1 tw="text-9xl font-bold text-white mb-6">{parseTextWithBreaks(mainText)}</h1>
+									<p tw="text-6xl text-white/90 mb-8">{parseTextWithBreaks(description)}</p>
+									<p tw="text-4xl text-white/80">{parseTextWithBreaks(footerText)}</p>
 								</div>
 							</div>
 						</div>
@@ -167,9 +209,10 @@ export default app
 								background: '#161b22',
 							}}
 						>
-							<h1 tw="text-9xl font-bold text-white mb-6">{mainText}</h1>
-							<p tw="text-6xl text-gray-300 mb-8">{description}</p>
-							<p tw="text-4xl text-gray-400">{footerText}</p>
+							{/* All text elements support line breaks via \n or <br> tags */}
+							<h1 tw="text-9xl font-bold text-white mb-6">{parseTextWithBreaks(mainText)}</h1>
+							<p tw="text-6xl text-gray-300 mb-8">{parseTextWithBreaks(description)}</p>
+							<p tw="text-4xl text-gray-400">{parseTextWithBreaks(footerText)}</p>
 						</div>
 					</div>
 				);
