@@ -7,6 +7,17 @@ import { generateDocumentationHTML } from './documentation';
 
 const app = new Hono();
 
+/**
+ * Clean Unicode variation selectors and other invisible characters from text
+ * This prevents emoji variation selectors (like U+FE0F) from rendering as visible glyphs
+ */
+function cleanUnicodeText(text: string): string {
+	return text
+		.normalize('NFC') // Normalize the Unicode
+		.replace(/[\uFE0F\uFE0E]/g, '') // Remove variation selectors
+		.replace(/[\u200D\u200C]/g, ''); // Remove zero-width joiners
+}
+
 export default app
 	.on('GET', '/', async (c) => {
 		const html = generateDocumentationHTML();
@@ -14,9 +25,9 @@ export default app
 	})
 	.on('GET', '/og', async (c) => {
 		try {
-			const mainText = c.req.query('mainText') || 'Default Title';
-			const description = c.req.query('description') || 'Default Description';
-			const footerText = c.req.query('footerText') || 'Footer Text';
+			const mainText = cleanUnicodeText(c.req.query('mainText') || 'Default Title');
+			const description = cleanUnicodeText(c.req.query('description') || 'Default Description');
+			const footerText = cleanUnicodeText(c.req.query('footerText') || 'Footer Text');
 			const style = c.req.query('style') || '1';
 
 			const font = await getLocalFonts(c, [{ path: 'Inter-Bold.ttf', weight: 700 }]);
@@ -177,9 +188,9 @@ export default app
 	.on('GET', ['/profile/', '/profile/:handle?'], async (c) => {
 		try {
 			const handle = c.req.param('handle');
-			const title = c.req.query('title') || handle || 'John Doe';
-			const subtitle = c.req.query('subtitle') || 'Software Engineer';
-			const description = c.req.query('description') || '';
+			const title = cleanUnicodeText(c.req.query('title') || handle || 'John Doe');
+			const subtitle = cleanUnicodeText(c.req.query('subtitle') || 'Software Engineer');
+			const description = cleanUnicodeText(c.req.query('description') || '');
 			const imageUrl = c.req.query('imageUrl') || c.req.query('image') || '';
 			const fontParam = c.req.query('font') || 'inter';
 
