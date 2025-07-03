@@ -3,10 +3,15 @@ import { ImageResponse } from 'workers-og';
 import { getLocalFonts, googleFont } from './getFonts';
 import { loadImage } from './loadImage';
 import { OGImageComponent } from './profile-card';
+import { generateDocumentationHTML } from './documentation';
 
 const app = new Hono();
 
 export default app
+	.on('GET', '/', async (c) => {
+		const html = generateDocumentationHTML();
+		return c.html(html);
+	})
 	.on('GET', '/og', async (c) => {
 		try {
 			const mainText = c.req.query('mainText') || 'Default Title';
