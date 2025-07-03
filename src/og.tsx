@@ -30,11 +30,36 @@ export default app
 			const charWidthRatio = c.req.query('charWidthRatio');
 			const scalingExponent = c.req.query('scalingExponent');
 
+			// Development logging for debugging charWidthRatio issues
+			if (process.env.NODE_ENV === 'development') {
+				console.log('=== INCOMING REQUEST PARAMETERS ===');
+				console.log('Request URL:', c.req.url);
+				console.log('Query parameters:', {
+					title: title,
+					subtitle: subtitle,
+					description: description,
+					imageUrl: imageUrl,
+					font: fontParam,
+					fontFallback: fontFallback,
+					minSize: minSize,
+					maxSize: maxSize,
+					charWidthRatio: charWidthRatio,
+					scalingExponent: scalingExponent
+				});
+			}
+
 			const fontSizeConfig: import('./profile-card').OptimalFontSizeConfig = {};
 			if (minSize) fontSizeConfig.minSize = parseInt(minSize, 10);
 			if (maxSize) fontSizeConfig.maxSize = parseInt(maxSize, 10);
 			if (charWidthRatio) fontSizeConfig.charWidthRatio = parseFloat(charWidthRatio);
 			if (scalingExponent) fontSizeConfig.scalingExponent = parseFloat(scalingExponent);
+
+			// Development logging for font size config
+			if (process.env.NODE_ENV === 'development') {
+				console.log('=== FONT SIZE CONFIG ===');
+				console.log('Raw charWidthRatio query param:', charWidthRatio);
+				console.log('Parsed fontSizeConfig:', fontSizeConfig);
+			}
 
 			if (!imageUrl) {
 				return await renderErrorImage('imageUrl parameter is required', c);
@@ -131,6 +156,13 @@ export default app
 			} catch (error: any) {
 				console.error(`Failed to load font '${fontParam}':`, error);
 				return await renderErrorImage(error.message, c);
+			}
+
+			// Development logging for component props
+			if (process.env.NODE_ENV === 'development') {
+				console.log('=== COMPONENT PROPS ===');
+				console.log('fontSizeConfig passed to component:', fontSizeConfig);
+				console.log('fontFamily passed to component:', fontFamily);
 			}
 
 			const ogImageJsx = (

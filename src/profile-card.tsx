@@ -79,11 +79,20 @@ function calculateOptimalFontSize(
 	// Clamp between min and max sizes
 	const finalSize = Math.floor(Math.min(maxSize, Math.max(minSize, calculatedSize)));
 
-	// Debug logging
-	console.log(`Font size calculation for "${text}":`, {
+	// Debug logging - enhanced for charWidthRatio debugging
+	console.log(`=== FONT SIZE CALCULATION FOR "${text}" ===`);
+	console.log('Input config:', config);
+	console.log('Font family:', fontFamily);
+	console.log('Primary font extracted:', primaryFont);
+	console.log('Config charWidthRatio:', configCharWidthRatio);
+	console.log('Font width ratios available:', fontWidthRatios);
+	console.log('Final charWidthRatio used:', charWidthRatio);
+	console.log('Source of charWidthRatio:', configCharWidthRatio ? 'CONFIG' : (fontWidthRatios[primaryFont] ? 'FONT_SPECIFIC' : 'DEFAULT'));
+	console.log('Calculation details:', {
 		textLength: text.length,
 		maxWidth: maxWidth,
 		charWidthRatio: charWidthRatio,
+		scalingExponent: scalingExponent,
 		effectiveLength: effectiveLength,
 		calculatedSize: calculatedSize,
 		finalSize: finalSize,
@@ -109,6 +118,16 @@ export function OGImageComponent({
 	// Calculate optimal font size for title (accounting for padding)
 	// More accurate calculation: total width (1200) - outer padding (96) - left section (420) - content padding (128)
 	const titleMaxWidth = 550; // More accurate available width
+	
+	// Development logging for component-level debugging
+	if (process.env.NODE_ENV === 'development') {
+		console.log('=== OG IMAGE COMPONENT RENDER ===');
+		console.log('Title:', title);
+		console.log('FontFamily:', fontFamily);
+		console.log('FontSizeConfig received:', fontSizeConfig);
+		console.log('About to calculate font size with titleMaxWidth:', titleMaxWidth);
+	}
+	
 	const titleFontSize = calculateOptimalFontSize(title, titleMaxWidth, fontFamily, fontSizeConfig);
 
 	return (
