@@ -1,7 +1,7 @@
 name = "og"
 main = "src/index.ts"
-compatibility_date = "2024-11-06"
-compatibility_flags = [ "nodejs_compat_v2" ]
+compatibility_date = "2025-07-03"
+compatibility_flags = [ "nodejs_compat" ]
 assets = { directory = "public",  binding = "ASSETS" }
 minify = true
 [build]

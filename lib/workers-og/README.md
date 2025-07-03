@@ -25,24 +25,20 @@ npm i workers-og
 Then, import it to your project. The API mimics `@vercel/og` closely.
 
 ```typescript
-import { ImageResponse } from "workers-og";
+import { ImageResponse } from 'workers-og';
 ```
 
 ## Example Usage on a Worker:
 
 ```typescript
-import { ImageResponse } from "workers-og";
+import { ImageResponse } from 'workers-og';
 
 export default {
-  async fetch(
-    request: Request,
-    env: Env,
-    ctx: ExecutionContext
-  ): Promise<Response> {
-    const params = new URLSearchParams(new URL(request.url).search);
-    const title = params.get("title") || "Lorem ipsum";
+	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+		const params = new URLSearchParams(new URL(request.url).search);
+		const title = params.get('title') || 'Lorem ipsum';
 
-    const html = `
+		const html = `
     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100vw; font-family: sans-serif; background: #160f29">
       <div style="display: flex; width: 100vw; padding: 40px; color: white;">
         <h1 style="font-size: 60px; font-weight: 600; margin: 0; font-family: 'Bitter'; font-weight: 500">${title}</h1>
@@ -50,10 +46,10 @@ export default {
     </div>
    `;
 
-    return new ImageResponse(html, {
-      width: 1200,
-      height: 630,
-    });
-  },
+		return new ImageResponse(html, {
+			width: 1200,
+			height: 630,
+		});
+	},
 };
 ```

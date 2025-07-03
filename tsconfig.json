@@ -32,6 +32,7 @@
 		"noPropertyAccessFromIndexSignature": false,
 		"baseUrl": "./", // Base directory for resolving non-relative module names
 		"paths": {
+			"workers-og": ["./lib/workers-og/packages/workers-og/src/index.ts"],
 			"@/*": [
 				// Path alias configuration
 				"./src/*"
